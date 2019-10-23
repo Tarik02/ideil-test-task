@@ -17,4 +17,14 @@ class Place extends Model
     {
         return $this->hasMany(PlaceComment::class);
     }
+
+    public function fields()
+    {
+        return $this->hasMany(PlaceField::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(PlaceLike::class);
+    }
 }
