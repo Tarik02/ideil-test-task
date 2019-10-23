@@ -6,6 +6,11 @@
 /_ide_helper.php
 /_ide_helper_models.php
 
+# compiled assets
+/public/css
+/public/js
+/public/mix-manifest.json
+
 # Laravel
 /node_modules
 /public/hot
