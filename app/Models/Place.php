@@ -27,4 +27,14 @@ class Place extends Model
     {
         return $this->belongsToMany(User::class)->using(PlaceLike::class);
     }
+
+    public function photos()
+    {
+        return $this->hasMany(PlacePhoto::class)->where('visible', true);
+    }
+
+    public function defaultPhoto()
+    {
+        return $this->hasOne(PlacePhoto::class, 'id', 'default_photo_id');
+    }
 }
