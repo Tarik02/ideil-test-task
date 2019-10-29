@@ -4,8 +4,10 @@ use App\Models\Place;
 use App\Models\PlaceComment;
 use App\Models\PlaceField;
 use App\Models\PlaceLike;
+use App\Models\PlacePhoto;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,10 +23,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@app.com',
         ]);
 
-        /** @var \Illuminate\Support\Collection $users */
+        /** @var Collection $users */
         $users = factory(User::class, 50)->create();
 
-        /* @var \Illuminate\Support\Collection $places */
+        /* @var Collection $places */
         $places = factory(Place::class, 50)->create();
 
         // create fields for places
@@ -70,6 +72,26 @@ class DatabaseSeeder extends Seeder
 
             $place->likes_count = $likesCount;
             $place->dislikes_count = $dislikesCount;
+            $place->save();
+        });
+
+        // create photos for places
+        $places->each(function (Place $place) {
+            /** @var Collection $photos */
+            $photos = Collection::times(mt_rand(1, 6))->map(function (int $i) use ($place) {
+                /** @var PlacePhoto $photo */
+                $photo = factory(PlacePhoto::class)->create([
+                    'place_id' => $place->id,
+                    'order' => $i,
+                ]);
+                $imageFile = tempnam(sys_get_temp_dir(), 'laravel-photo');
+                file_put_contents($imageFile, file_get_contents('https://picsum.photos/200/300'));
+                $uploadedFile = new \Illuminate\Http\UploadedFile($imageFile, $imageFile);
+                $photo->uploadImage($uploadedFile, 'preview');
+                $photo->uploadImage($uploadedFile, 'original');
+                return $photo;
+            });
+            $place->default_photo_id = $photos->random()->id;
             $place->save();
         });
     }
