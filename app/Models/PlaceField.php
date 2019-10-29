@@ -15,6 +15,11 @@ class PlaceField extends Model
         'value',
     ];
 
+    protected $visible = [
+        'key',
+        'value',
+    ];
+
     public function place()
     {
         return $this->belongsTo(Place::class);

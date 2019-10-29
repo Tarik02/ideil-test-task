@@ -41,26 +41,16 @@
                     >Dislike</span>
                 </p>
 
-                <template v-if="showCommentForm">
-                    <form>
-                        <div class="form-group">
-                            <label for="exampleInputEmail1">Email address</label>
-                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-                            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="exampleInputPassword1">Password</label>
-                            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-                        </div>
-                        <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                            <label class="form-check-label" for="exampleCheck1">Check me out</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                </template>
+                <place-comment-form-component
+                    v-if="showCommentForm"
+                    :place="place"
+                    @success="commentSuccess"
+                    @cancel="showCommentForm = false"
+                />
                 <template v-else>
                     <div class="comments-container">
+                        <h3>Коментарі</h3>
+
                         <template v-if="place.comments.length > 0">
                             <place-comment-card-component
                                 v-for="comment of place.comments"
@@ -82,12 +72,14 @@
 
 <script>
     import Axios from 'axios';
-    import { mapState } from 'vuex';
+    import { mapState, mapActions } from 'vuex';
     import PlaceCommentCardComponent from './PlaceCommentCardComponent';
+    import PlaceCommentFormComponent from './PlaceCommentFormComponent';
 
     export default {
         components: {
             PlaceCommentCardComponent,
+            PlaceCommentFormComponent,
         },
 
         data: () => ({
@@ -107,6 +99,13 @@
                     this.$store.commit('HANDLE_LIKE_RESPONSE', response.data);
                 });
             },
+
+            commentSuccess() {
+                this.reloadComments();
+                this.showCommentForm = false;
+            },
+
+            ...mapActions(['reloadComments']),
         },
     };
 </script>

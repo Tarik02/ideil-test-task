@@ -13,6 +13,18 @@ class Place extends Model
         'mark',
     ];
 
+    protected $visible = [
+        'id',
+        'slug',
+        'name',
+        'description',
+        'mark',
+        'comments',
+        'fields',
+        'photos',
+        'defaultPhoto',
+    ];
+
     public function comments()
     {
         return $this->hasMany(PlaceComment::class);

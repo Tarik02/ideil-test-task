@@ -50,4 +50,23 @@ class PlaceController extends Controller
             return redirect()->route('place.show', ['slug' => $slug]);
         }
     }
+
+    public function comments(string $slug)
+    {
+        $place = Place::where('slug', $slug)->firstOrFail();
+
+        return response()->json([
+            'data' => $place->comments,
+        ]);
+    }
+
+    public function addComment(string $slug, Request $request)
+    {
+        $place = Place::where('slug', $slug)->firstOrFail();
+
+        $comment = new PlaceComment($request->all());
+        $comment->author_id = \Auth::id();
+
+        $place->comments()->save($comment);
+    }
 }

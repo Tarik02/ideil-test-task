@@ -24,6 +24,7 @@ Axios.interceptors.response.use(response => response, error => {
                 break;
         }
     }
+    return Promise.reject(error);
 });
 
 if (process.env.NODE_ENV === 'development') {

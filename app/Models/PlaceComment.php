@@ -10,6 +10,18 @@ class PlaceComment extends Model
         'text',
     ];
 
+    protected $visible = [
+        'id',
+        'text',
+        'created_at',
+        'updated_at',
+        'author',
+    ];
+
+    protected $with = [
+        'author',
+    ];
+
     public function place()
     {
         return $this->belongsTo(Place::class);

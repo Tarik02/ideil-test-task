@@ -12,11 +12,22 @@
 */
 
 Route::get('/', 'IndexController@index')->name('index');
-Route::get('/place/{slug}', 'PlaceController@show')->name('place.show');
-Route::get('/place/{slug}/like/{value}', 'PlaceController@like')
-    ->name('place.like')
-    ->middleware('auth')
-;
+
+Route::group([
+    'as' => 'place.',
+    'prefix' => '/place',
+], function () {
+    Route::get('/{slug}', 'PlaceController@show')->name('show');
+
+    Route::get('/{slug}/like/{value}', 'PlaceController@like')
+        ->name('like')->middleware('auth');
+
+    Route::get('/{slug}/comments', 'PlaceController@comments')
+        ->name('comments');
+
+    Route::put('/{slug}/comments', 'PlaceController@addComment')
+        ->name('comment')->middleware('auth');
+});
 
 Route::get('/home', 'HomeController@index')->name('home');
 
