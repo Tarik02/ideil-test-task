@@ -14,7 +14,7 @@ class CreatePlacePhotosTable extends Migration
     public function up()
     {
         Schema::create('place_photos', function (Blueprint $table) {
-            $table->bigInteger('id');
+            $table->bigIncrements('id');
             $table->unsignedBigInteger('place_id');
             $table->string('preview');
             $table->string('original');
