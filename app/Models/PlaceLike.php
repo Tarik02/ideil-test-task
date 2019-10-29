@@ -23,4 +23,14 @@ class PlaceLike extends Model
     {
         return $this->belongsTo(Place::class);
     }
+
+    public function isLike()
+    {
+        return $this->value > 0;
+    }
+
+    public function isDislike()
+    {
+        return $this->value < 0;
+    }
 }

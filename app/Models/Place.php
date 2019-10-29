@@ -25,6 +25,6 @@ class Place extends Model
 
     public function likes()
     {
-        return $this->hasMany(PlaceLike::class);
+        return $this->belongsToMany(User::class)->using(PlaceLike::class);
     }
 }

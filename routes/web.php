@@ -11,10 +11,13 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Auth::routes();
+Route::get('/', 'IndexController@index')->name('index');
+Route::get('/place/{slug}', 'PlaceController@show')->name('place.show');
+Route::get('/place/{slug}/like/{value}', 'PlaceController@like')
+    ->name('place.like')
+    ->middleware('auth')
+;
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Auth::routes();

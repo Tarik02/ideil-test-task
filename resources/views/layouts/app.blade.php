@@ -7,10 +7,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    <title>Архітектурні місця Європи</title>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -24,7 +21,7 @@
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
+                    Архітектурні місця Європи
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -76,5 +73,21 @@
             @yield('content')
         </main>
     </div>
+
+    <!-- Scripts -->
+    @stack('scripts')
+    <script>
+window.__initialState = window.__initialState || {};
+window.__initialState.page = Object.assign(window.__initialState.page || {}, {!! json_encode([
+    'route' =>  Route::getCurrentRoute()->getName(),
+    'params' => Route::getCurrentRoute()->parameters(),
+]) !!});
+window.__initialState.auth = {!! json_encode([
+    'id' => Auth::id(),
+]) !!};
+    </script>
+    <script src="{{ mix('/js/manifest.js') }}"></script>
+    <script src="{{ mix('/js/vendor.js') }}"></script>
+    <script src="{{ mix('/js/app.js') }}"></script>
 </body>
 </html>
