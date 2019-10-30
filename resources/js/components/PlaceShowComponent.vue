@@ -18,6 +18,15 @@
                     </table>
                 </template>
 
+                <h6>Галерея:</h6>
+                <img
+                    v-for="photo of place.photos"
+                    :key="photo.preview"
+                    :src="photo.preview"
+                    alt=""
+                    @click="showPhotoFullscreen(photo.original)"
+                >
+
                 <p class="text">
                     Оцінка: {{ place.mark }}/10
                     <br>
@@ -103,6 +112,10 @@
             commentSuccess() {
                 this.reloadComments();
                 this.showCommentForm = false;
+            },
+
+            showPhotoFullscreen(url) {
+                // TODO: show
             },
 
             ...mapActions(['reloadComments']),

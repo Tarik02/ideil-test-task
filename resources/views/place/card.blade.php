@@ -9,6 +9,9 @@
                 {{ $place->name }}
             </a>
         </h5>
-        <p class="card-text">{{ $place->description }}</p>
+        <p class="card-text">
+            <img src="{{ $place->defaultPhoto->imageUrl('preview') }}" alt="">
+            {{ $place->description }}
+        </p>
     </div>
 </div>

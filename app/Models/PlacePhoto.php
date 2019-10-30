@@ -10,10 +10,18 @@ class PlacePhoto extends Model
     use HasImageUploads;
 
     protected $fillable = [
-        'preview',
-        'original',
         'order',
         'visible',
+    ];
+
+    protected $visible = [
+        'original',
+        'preview',
+    ];
+
+    protected $appends = [
+        'preview',
+        'original',
     ];
 
     protected static $imageFields = [
@@ -26,5 +34,15 @@ class PlacePhoto extends Model
     public function place()
     {
         return $this->belongsTo(Place::class);
+    }
+
+    public function getPreviewAttribute()
+    {
+        return $this->imageUrl('preview');
+    }
+
+    public function getOriginalAttribute()
+    {
+        return $this->imageUrl('original');
     }
 }

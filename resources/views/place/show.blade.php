@@ -27,6 +27,11 @@
                     </table>
                 @endunless
 
+                <h6>Галерея:</h6>
+                @foreach($place->photos as $photo)
+                    <img src="{{ $photo->imageUrl('preview') }}" alt="">
+                @endforeach
+
                 <p class="text">
                     Оцінка: {{ $place->mark }}/10
                     <br>
