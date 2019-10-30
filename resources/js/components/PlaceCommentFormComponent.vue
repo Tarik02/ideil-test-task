@@ -15,13 +15,13 @@
             type="submit"
             class="btn btn-primary"
             :disabled="submitting || text.length < 10"
-            @click="submit"
+            @click.prevent="submit"
         >Опублікувати</button>
         <button
             type="submit"
             class="btn btn-secondary"
             :disabled="submitting"
-            @click="$emit('cancel')"
+            @click.prevent="$emit('cancel')"
         >Скасувати</button>
         <div v-if="errored" class="alert-danger">
             Сталася помилка під час останньої спроби відправлення коментаря
