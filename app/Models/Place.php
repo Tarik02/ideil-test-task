@@ -23,6 +23,8 @@ class Place extends Model
         'fields',
         'photos',
         'defaultPhoto',
+        'likes_count',
+        'dislikes_count',
     ];
 
     public function comments()
