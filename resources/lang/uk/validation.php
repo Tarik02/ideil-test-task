@@ -180,5 +180,6 @@ return [
         'time'                  => 'Час',
         'available'             => 'Доступно',
         'size'                  => 'Розмір',
+        'slug'                  => 'URL',
     ],
 ];
