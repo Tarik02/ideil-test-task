@@ -34,20 +34,29 @@
                                 >{{ $t('common.cancel') }}</v-btn>
 
                                 <v-btn
+                                    v-if="!isNew"
                                     color="red"
-                                    @click="destroy"
+                                    @click="deleteDialog = true"
                                 >{{ $t('common.destroy') }}</v-btn>
 
                                 <v-btn
                                     :disabled="!valid"
                                     @click="save"
-                                >{{ $t('common.save') }}</v-btn>
+                                >{{ $t(isNew ? 'common.create' : 'common.save') }}</v-btn>
                             </v-card-actions>
                         </v-col>
                     </v-form>
                 </v-col>
             </v-row>
         </template>
+
+        <delete-dialog
+            v-model="deleteDialog"
+            :identifier="identifier"
+            :name="name"
+            :model="data"
+            @done="$router.go(-1), $router.reload()"
+        />
     </v-layout>
 </template>
 
@@ -55,11 +64,13 @@
     import Axios from 'axios';
     import Error from '../common/Error';
     import Loading from '../common/Loading';
+    import DeleteDialog from '../DeleteDialog';
 
     export default {
         components: {
             Error,
             Loading,
+            DeleteDialog,
         },
 
         props: {
@@ -67,6 +78,14 @@
             identifier: {
                 type: String,
                 default: 'id',
+            },
+            initialModel: {
+                type: Function,
+                default: () => ({}),
+            },
+            initialMeta: {
+                type: Function,
+                default: () => ({}),
             },
         },
 
@@ -77,7 +96,18 @@
             meta: undefined,
 
             valid: true,
+            deleteDialog: false,
         }),
+
+        computed: {
+            identifierValue() {
+                return this.$route.params[this.identifier];
+            },
+
+            isNew() {
+                return !this.identifierValue;
+            },
+        },
 
         mounted() {
             this.load();
@@ -85,6 +115,16 @@
 
         methods: {
             load() {
+                if (this.isNew) {
+                    this.loading = false;
+                    this.error = false;
+                    if (!this.data) {
+                        this.data = this.initialModel();
+                        this.meta = this.initialMeta();
+                    }
+                    return;
+                }
+
                 this.loading = true;
                 this.error = false;
 
@@ -103,9 +143,6 @@
             },
 
             save() {
-                const identifier = this.data[this.identifier];
-                const create = !identifier;
-
                 const data = new FormData();
                 this.$emit('buildFormData', data);
 
@@ -113,28 +150,33 @@
                 Axios
                     .request({
                         url: (
-                            create
+                            this.isNew
                                 ? `/${this.name}`
                                 : `/${this.name}/${this.$route.params[this.identifier]}`
                         ),
                         method: (
-                            create ? 'post' : 'patch'
+                            this.isNew ? 'post' : 'patch'
                         ),
                         data,
                     })
                     .then(() => {
-                        // this.
-                        this.load();
+                        if (this.isNew) {
+                            this.$router.push({
+                                name: `${this.name}.edit`,
+                                params: {
+                                    [this.identifier]: this.data[this.identifier],
+                                },
+                            });
+                        } else {
+                            this.load();
+                        }
                     })
                     .catch(() => {
                         this.loading = false;
                         // this.error = true;
+                        // TOOD: show notification about the error
                     })
                 ;
-            },
-
-            destroy() {
-                //
             },
 
             cancel() {

@@ -1,8 +1,6 @@
 <template>
     <div>
-        Hello World
-
-        <v-btn flat>Hello</v-btn>
+        Dashboard
     </div>
 </template>
 

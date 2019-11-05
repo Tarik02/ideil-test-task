@@ -19,11 +19,13 @@ class PlaceRequest extends FormRequest
             ],
             'description' => 'required|max:20480',
             'mark' => 'integer|between:1,10',
+            'fields' => 'present|array',
             'fields.*.key' => 'required|max:64',
             'fields.*.value' => 'required|max:64',
+            'photos' => 'present|array',
             'photos.*.id' => 'nullable|integer',
             'photos.*.file' => 'nullable|integer',
-            'photos.*.visible' => 'bool',
+            'photos.*.visible' => 'required',
         ];
     }
 }

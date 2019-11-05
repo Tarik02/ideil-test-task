@@ -3,6 +3,8 @@
         ref="resource"
         name="places"
         identifier="slug"
+        :initial-model="initialModel"
+        :initial-meta="initialMeta"
         @buildFormData="buildFormData"
         v-slot="{ data, meta }"
     >
@@ -225,19 +227,6 @@
                 ]);
             },
             buildFormData(formData) {
-                // for (const field of [
-                //     'slug',
-                //     'name',
-                //     'description',
-                //     'mark',
-                // ]) {
-                //     formData.append(field, this.model[field]);
-                // }
-                //
-                // for (const {key, value} of this.model.fields) {
-                //     formData.append(`fields[${key}]`, value);
-                // }
-
                 const photos = [];
                 let photoFileCounter = 0;
                 for (const photo of this.model.photos) {
@@ -252,7 +241,7 @@
                             file: fileIndex,
                             visible: photo.visible,
                         });
-                        formData.append('photos[]', photo.file);
+                        formData.append('file[]', photo.file);
                     }
                 }
 
@@ -267,6 +256,21 @@
                     ]),
                     photos,
                 }));
+            },
+            initialModel() {
+                return {
+                    slug: '',
+                    name: '',
+                    description: '',
+                    mark: 10,
+                    fields: [],
+                    photos: [],
+                };
+            },
+            initialMeta() {
+                return {
+                    url_prefix: `${location.protocol}//${location.hostname}/places/`,
+                };
             },
         },
     };

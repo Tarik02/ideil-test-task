@@ -13,8 +13,10 @@
                     :items="items"
                     :loading="loading"
                     :options.sync="options"
-                    :items-per-page.sync="meta.per_page"
                     :server-items-length="meta.total"
+                    :footer-props="{
+                        'items-per-page-options': [],
+                    }"
                     @click:row="openItem($event)"
                     :page="page"
                     @update:page="$mergePushRoute({ query: { page: $event } })"
@@ -31,7 +33,11 @@
                                 vertical
                             ></v-divider>
                             <v-spacer></v-spacer>
-                            <v-btn color="primary" class="mb-2">
+                            <v-btn
+                                color="primary"
+                                class="mb-2"
+                                @click="createNew"
+                            >
                                 {{ $t('resources.common.create') }}
                             </v-btn>
                         </v-toolbar>
@@ -40,13 +46,13 @@
                         <v-icon
                             small
                             class="mr-2"
-                            @click="editItem(item)"
+                            @click.stop="editItem(item)"
                         >
                             edit
                         </v-icon>
                         <v-icon
                             small
-                            @click="deleteItem(item)"
+                            @click.stop="deleteItem(item)"
                         >
                             delete
                         </v-icon>
@@ -54,6 +60,15 @@
                 </v-data-table>
             </v-col>
         </v-row>
+
+        <delete-dialog
+            v-model="deleteDialog"
+            :identifier="identifier"
+            :identifier-getter="identifierGetter"
+            :name="name"
+            :model="deleteModel"
+            @done="$router.reload()"
+        />
     </v-layout>
 </template>
 
@@ -61,11 +76,13 @@
     import Axios from 'axios';
     import Error from '../common/Error';
     import Loading from '../common/Loading';
+    import DeleteDialog from '../DeleteDialog';
 
     export default {
         components: {
             Error,
             Loading,
+            DeleteDialog,
         },
 
         props: {
@@ -93,6 +110,9 @@
 
             items: [],
             meta: {},
+
+            deleteDialog: false,
+            deleteModel: undefined,
         }),
 
         computed: {
@@ -119,11 +139,8 @@
                 this.loading = true;
                 this.error = false;
 
-                const {itemsPerPage} = this.options;
-
                 return Axios.get(`/${this.name}`, {
                     params: {
-                        per_page: itemsPerPage,
                         page: this.page,
                     },
                 })
@@ -144,6 +161,12 @@
                     ;
             },
 
+            createNew() {
+                this.$router.push({
+                    name: `${this.name}.create`,
+                });
+            },
+
             openItem(item) {
                 this.$router.push({
                     name: `${this.name}.edit`,
@@ -151,6 +174,11 @@
                         [this.identifier]: this.identifierGetter(item, this.identifier),
                     },
                 });
+            },
+
+            deleteItem(item) {
+                this.deleteDialog = true;
+                this.deleteModel = item;
             },
         },
 
@@ -164,14 +192,6 @@
                     this.reload();
                 },
             },
-
-            // page(value) {
-            //     this.options.page = value;
-            // },
-
-            // '$route.query.page'(newValue) {
-            //     this.options.page = newValue;
-            // },
         },
     }
 </script>

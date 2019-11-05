@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\PlaceLikesService;
+use App\Services\PlaceService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(PlaceLikesService::class);
+        $this->app->singleton(PlaceService::class);
     }
 
     /**

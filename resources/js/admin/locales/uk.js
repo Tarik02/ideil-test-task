@@ -2,6 +2,7 @@ import base from 'vee-validate/dist/locale/uk.json';
 
 export default {
     common: {
+        create: 'Створити',
         save: 'Зберегти',
         cancel: 'Скасувати',
         destroy: 'Видалити',

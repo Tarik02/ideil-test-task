@@ -34,7 +34,9 @@
                         <v-layout fluid fill-height>
                             <v-card class="px-4 py-2" width="100%">
                                 <keep-alive>
-                                    <router-view></router-view>
+                                    <router-view
+                                        :key="reloadCounter + $route.fullPath"
+                                    />
                                 </keep-alive>
                             </v-card>
                         </v-layout>
@@ -59,6 +61,13 @@
         data: () => ({
             drawer: false,
             dark: false,
+            reloadCounter: 0,
         }),
+
+        mounted() {
+            this.$router.reload = () => {
+                ++this.reloadCounter;
+            };
+        },
     };
 </script>

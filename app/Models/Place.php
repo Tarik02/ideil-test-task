@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Scopes\CreatedAtScope;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia\HasMedia;
 use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
@@ -51,5 +52,12 @@ class Place extends Model implements HasMedia
             ->width(400)
             ->performOnCollections('photos')
         ;
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new CreatedAtScope());
     }
 }
