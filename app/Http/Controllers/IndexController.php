@@ -9,7 +9,7 @@ class IndexController extends Controller
 {
     public function index()
     {
-        $places = Place::with('defaultPhoto')->get();
+        $places = Place::with('media')->get();
 
         return view('index', compact('places'));
     }

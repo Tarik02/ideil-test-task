@@ -1,10 +1,11 @@
 <template>
     <div>
         <draggable
-            v-model="photos"
             handle=".drag-handle"
+            :value="photos"
             :animation="200"
             :move="event => event.relatedContext.index !== photos.length + 1"
+            @input="$emit('input', $event)"
             @start="drag = true"
             @end="drag = false"
         >

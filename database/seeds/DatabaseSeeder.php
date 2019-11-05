@@ -6,6 +6,7 @@ use App\Models\PlaceField;
 use App\Models\PlaceLike;
 use App\Models\PlacePhoto;
 use App\Models\User;
+use Faker\Generator as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
@@ -18,6 +19,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        /** @var Faker $faker */
+        $faker = app(Faker::class);
+
         factory(User::class)->create([
             'name' => 'admin',
             'email' => 'admin@app.com',
@@ -26,23 +30,30 @@ class DatabaseSeeder extends Seeder
         /** @var Collection $users */
         $users = factory(User::class, 50)->create();
 
+        $nameGenerator = $faker->unique();
         /* @var Collection $places */
-        $places = factory(Place::class, 50)->create();
+        $places = Collection::times(50, function () use ($nameGenerator) {
+            $name = rtrim($nameGenerator->sentence(4), '.');
+            return factory(Place::class)->create([
+                'name' => $name,
+                'slug' => \Str::slug($name),
+            ]);
+        });
 
         // create fields for places
-        $places->each(function (Place $place) {
-            factory(PlaceField::class, mt_rand(0, 6))->create([
+        $places->each(function (Place $place) use ($faker) {
+            factory(PlaceField::class, $faker->numberBetween(0, 6))->create([
                 'place_id' => $place->id,
             ]);
         });
 
         // create comments for places
-        $places->each(function (Place $place) use ($users) {
-            $commentators = $users->random(mt_rand(0, 10));
+        $places->each(function (Place $place) use ($users, $faker) {
+            $commentators = $users->random($faker->numberBetween(0, 10));
 
             /** @var User $commentator */
             foreach ($commentators as $commentator) {
-                factory(PlaceComment::class, mt_rand(1, 2))->create([
+                factory(PlaceComment::class, $faker->numberBetween(1, 2))->create([
                     'place_id' => $place->id,
                     'author_id' => $commentator->id,
                 ]);
@@ -50,8 +61,8 @@ class DatabaseSeeder extends Seeder
         });
 
         // create likes for places
-        $places->each(function (Place $place) use ($users) {
-            $likingUsers = $users->random(mt_rand(0, 30));
+        $places->each(function (Place $place) use ($users, $faker) {
+            $likingUsers = $users->random($faker->numberBetween(0, 30));
             $likesCount = 0;
             $dislikesCount = 0;
 
@@ -76,22 +87,14 @@ class DatabaseSeeder extends Seeder
         });
 
         // create photos for places
-        $places->each(function (Place $place) {
-            /** @var Collection $photos */
-            $photos = Collection::times(mt_rand(1, 6))->map(function (int $i) use ($place) {
-                /** @var PlacePhoto $photo */
-                $photo = factory(PlacePhoto::class)->create([
-                    'place_id' => $place->id,
-                    'weight' => $i,
-                ]);
-                $imageFile = tempnam(sys_get_temp_dir(), 'laravel-photo');
-                file_put_contents($imageFile, file_get_contents('https://picsum.photos/200/300'));
-                $uploadedFile = new \Illuminate\Http\UploadedFile($imageFile, $imageFile);
-                $photo->uploadImage($uploadedFile, 'preview');
-                $photo->uploadImage($uploadedFile, 'original');
-                return $photo;
-            });
-            $place->default_photo_id = $photos->random()->id;
+        $places->each(function (Place $place) use ($faker) {
+            $count = $faker->numberBetween(0, 6);
+            for ($i = 0; $i < $count; ++$i) {
+                $place
+                    ->addMediaFromUrl('https://picsum.photos/600/900')
+                    ->toMediaCollection('photos')
+                ;
+            }
             $place->save();
         });
     }

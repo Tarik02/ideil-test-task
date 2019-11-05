@@ -24,7 +24,6 @@ class PlaceController extends Controller
             'comments' => function ($comment) {
                 return $comment->where('visible', 1)->with('author');
             },
-            'photos',
         ])->where('slug', $slug)->firstOrFail();
 
         $likeState = $this->placeLikesService->getLikeState($place);

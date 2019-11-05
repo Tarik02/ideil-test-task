@@ -4,6 +4,7 @@ namespace App\Http\Resources\Admin;
 
 use App\Models\Place;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Spatie\MediaLibrary\Models\Media;
 
 /**
  * @mixin Place
@@ -23,10 +24,18 @@ class PlaceResource extends JsonResource
             'dislikes_count' => $this->dislikes_count,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'default_photo' => PlacePhotoResource::make($this->whenLoaded('defaultPhoto')),
             'comments' => CommentResource::collection($this->whenLoaded('comments')),
             'fields' => PlaceFieldResource::collection($this->whenLoaded('fields')),
-            'photos' => PlacePhotoResource::collection($this->whenLoaded('photos')),
+            'photos' => $this->whenLoaded('media', function () {
+                return $this->getMedia('photos')->map(function (Media $photo) {
+                    return [
+                        'id' => $photo->id,
+                        'preview' => $photo->getUrl('preview'),
+                        'original' => $photo->getUrl(),
+                        'visible' => $photo->getCustomProperty('visible', true),
+                    ];
+                });
+            }),
         ];
     }
 

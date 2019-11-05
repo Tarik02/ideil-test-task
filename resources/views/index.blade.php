@@ -21,7 +21,11 @@
 window.__initialState = {
     places: {
         data: {!! json_encode($places->map(function (\App\Models\Place $place) {
-            return $place->only('slug', 'name', 'description', 'defaultPhoto') + [
+            return $place->only('slug', 'name', 'description') + [
+                'defaultPhoto' => [
+                    'preview' => optional($place->getMedia('photos')->first())->getUrl('preview'),
+                    'original' => optional($place->getMedia('photos')->first())->getUrl(),
+                ],
                 'url' => route('place.show', ['slug' => $place->slug]),
             ];
         })) !!},

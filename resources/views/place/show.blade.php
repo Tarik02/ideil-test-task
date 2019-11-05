@@ -5,6 +5,8 @@
 
 @extends('layouts.app')
 
+@section('title', $place->name)
+
 @section('content')
     <div class="container" id="show-place">
         <div class="row justify-content-center">
@@ -28,8 +30,11 @@
                 @endunless
 
                 <h6>Галерея:</h6>
-                @foreach($place->photos as $photo)
-                    <img src="{{ $photo->imageUrl('preview') }}" alt="">
+                @foreach($place->getMedia('photos') as $photo)
+                    @if(!$photo->getCustomProperty('visible', true))
+                        @continue
+                    @endif
+                    <img src="{{ $photo->getUrl('preview') }}" alt="">
                 @endforeach
 
                 <p class="text">
@@ -66,7 +71,18 @@
 @push('scripts')
 <script>
 window.__initialState = {!! json_encode([
-    'place' => $place,
+    'place' => $place->jsonSerialize() + [
+        'photos' => $place->getMedia('photos')
+            ->filter(function ($photo) {
+                return $photo->getCustomProperty('visible', true);
+            })
+            ->map(function ($photo) {
+                return [
+                    'preview' => $photo->getUrl('preview'),
+                    'original' => $photo->getUrl(),
+                ];
+            }),
+    ],
     'like_state' => $likeState,
 ]) !!};
 </script>

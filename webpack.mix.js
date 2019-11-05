@@ -1,5 +1,5 @@
 // http://www.compulsivecoders.com/tech/how-to-build-multiple-vendors-using-laravel-mix/
-require('dotenv').install();
+require('dotenv').config();
 const mix = require('laravel-mix');
 
 const DEFAULT_SECTION = 'main';

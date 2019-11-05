@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Spatie\MediaLibrary\Models\Media;
 
 class PlaceController extends Controller
 {
@@ -36,14 +37,11 @@ class PlaceController extends Controller
         return PlaceResource::make(
             Place::where('slug', $slug)
                 ->with([
-                    'defaultPhoto',
                     'comments' => function (HasMany $builder) {
                         $builder->withoutGlobalScope(VisibleScope::class);
                     },
                     'fields',
-                    'photos' => function (HasMany $builder) {
-                        $builder->withoutGlobalScope(VisibleScope::class);
-                    },
+                    'media',
                 ])
                 ->firstOrFail()
         );
@@ -64,40 +62,30 @@ class PlaceController extends Controller
                 return PlaceField::make($field + ['weight' => $i]);
             }));
 
-            $preservedPhotos = array_flip(array_filter(array_map(function ($photo) {
-                return $photo['id'] ?? null;
-            }, $data['photos']), function ($id) {
-                return $id !== null;
-            }));
-            $newPhotos = array_filter($data['photos'], function ($photo) {
-                return !isset($photo['id']);
+            $photos = $place->getMedia('photos')->mapWithKeys(function (Media $photo) {
+                return [$photo->id => $photo];
             });
 
-            $photos = $place->photos;
-            /** @var PlacePhoto $photo */
-            foreach ($photos as $photo) {
-                if (isset($preservedPhotos[$photo->id])) {
-                    $index = $preservedPhotos[$photo->id];
-                    $photo->weight = $index;
-                    $photo->visible = $data['photos'][$index]['visible'];
-                    $photo->save();
-                } else {
-                    $photo->delete();
-                }
-            }
-
             $photoFiles = Arr::wrap($request->file('photos', []));
-            foreach ($newPhotos as $index => $newPhoto) {
-                /** @var UploadedFile $file */
-                $file = $photoFiles[$newPhoto['file']];
-                $photo = $place->photos()->make();
-//                $photo->place = $place;
-                $photo->weight = $index;
-                $photo->visible = $data['photos'][$index]['visible'];
-                $photo->uploadImage($file, 'original');
-                $photo->uploadImage($file, 'preview');
-                $photo->save();
-            }
+            $orderCounter = 1;
+            collect($data['photos'])->each(
+                function ($photo) use ($place, $photos, $photoFiles, &$orderCounter) {
+                    if (isset($photo['id'])) {
+                        $model = $photos[$photo['id']];
+                    } else {
+                        $model = $place
+                            ->addMedia($photoFiles[$photo['file']])
+                            ->toMediaCollection('photos')
+                        ;
+                    }
+                    $model->setCustomProperty('visible', $photo['visible']);
+                    $model->order_column = $orderCounter++;
+
+                    $model->save();
+                }
+            );
+
+            $place->save();
         });
 
         return response()->json(['status' => 'ok']);

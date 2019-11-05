@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia\HasMedia;
+use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
+use Spatie\MediaLibrary\Models\Media;
 
-class Place extends Model
+class Place extends Model implements HasMedia
 {
+    use HasMediaTrait;
+
     protected $fillable = [
         'slug',
         'name',
@@ -21,8 +26,6 @@ class Place extends Model
         'mark',
         'comments',
         'fields',
-        'photos',
-        'defaultPhoto',
         'likes_count',
         'dislikes_count',
     ];
@@ -42,13 +45,11 @@ class Place extends Model
         return $this->belongsToMany(User::class)->using(PlaceLike::class);
     }
 
-    public function photos()
+    public function registerMediaConversions(Media $media = null)
     {
-        return $this->hasMany(PlacePhoto::class)->where('visible', true);
-    }
-
-    public function defaultPhoto()
-    {
-        return $this->hasOne(PlacePhoto::class, 'id', 'default_photo_id');
+        $this->addMediaConversion('preview')
+            ->width(400)
+            ->performOnCollections('photos')
+        ;
     }
 }

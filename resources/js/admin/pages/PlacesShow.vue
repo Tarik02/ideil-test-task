@@ -153,7 +153,10 @@
                 </v-toolbar-title>
             </v-toolbar>
 
-            <gallery :photos="model.photos" />
+            <gallery
+                :photos="model.photos"
+                @input="$set(model, 'photos', $event)"
+            />
         </v-card-text>
     </resources-show>
 </template>
