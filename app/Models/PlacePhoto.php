@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Scopes\VisibleScope;
+use App\Scopes\WeightScope;
 use Illuminate\Database\Eloquent\Model;
 use QCod\ImageUp\HasImageUploads;
 
@@ -10,7 +12,7 @@ class PlacePhoto extends Model
     use HasImageUploads;
 
     protected $fillable = [
-        'order',
+        'weight',
         'visible',
     ];
 
@@ -44,5 +46,20 @@ class PlacePhoto extends Model
     public function getOriginalAttribute()
     {
         return $this->imageUrl('original');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new WeightScope());
+        static::addGlobalScope(new VisibleScope());
+
+        static::deleted(function (PlacePhoto $photo) {
+            dump($photo->preview);
+            dump($photo->original);
+//            $photo->deleteImage($photo->preview);
+//            $photo->deleteImage($photo->original);
+        });
     }
 }

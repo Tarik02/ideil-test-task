@@ -7,7 +7,9 @@
 /_ide_helper_models.php
 
 # compiled assets
+/public/assets
 /public/css
+/public/fonts
 /public/js
 /public/mix-manifest.json
 

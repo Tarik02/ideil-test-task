@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Scopes\WeightScope;
 use Illuminate\Database\Eloquent\Model;
 
 class PlaceField extends Model
@@ -13,6 +14,7 @@ class PlaceField extends Model
     protected $fillable = [
         'key',
         'value',
+        'weight',
     ];
 
     protected $visible = [
@@ -23,5 +25,12 @@ class PlaceField extends Model
     public function place()
     {
         return $this->belongsTo(Place::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new WeightScope());
     }
 }

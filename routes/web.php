@@ -32,3 +32,25 @@ Route::group([
 Route::get('/home', 'HomeController@index')->name('home');
 
 Auth::routes();
+
+Route::group([
+    'as' => 'admin.',
+    'prefix' => '/admin',
+    'middleware' => 'admin',
+], function () {
+    Route::group([
+        'as' => 'api.',
+        'prefix' => '/api',
+        'namespace' => 'Admin',
+    ], function () {
+        Route::apiResource('places', 'PlaceController');
+    });
+
+    Route::any('/{path?}', function (string $path = null) {
+        if ($path !== null && 0 === stripos($path, 'api')) {
+            abort(404);
+        }
+
+        return view('admin.app');
+    })->where('path', '.*');
+});

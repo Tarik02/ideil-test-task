@@ -10,7 +10,9 @@
             </a>
         </h5>
         <p class="card-text">
-            <img src="{{ $place->defaultPhoto->imageUrl('preview') }}" alt="">
+            @if($place->defaultPhoto !== null)
+                <img src="{{ $place->defaultPhoto->imageUrl('preview') }}" alt="">
+            @endif
             {{ $place->description }}
         </p>
     </div>

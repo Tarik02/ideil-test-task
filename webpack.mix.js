@@ -1,20 +1,27 @@
+// http://www.compulsivecoders.com/tech/how-to-build-multiple-vendors-using-laravel-mix/
+require('dotenv').install();
 const mix = require('laravel-mix');
 
-/*
- |--------------------------------------------------------------------------
- | Mix Asset Management
- |--------------------------------------------------------------------------
- |
- | Mix provides a clean, fluent API for defining some Webpack build steps
- | for your Laravel application. By default, we are compiling the Sass
- | file for the application as well as bundling up all the JS files.
- |
- */
+const DEFAULT_SECTION = 'main';
+const SECTIONS = ['admin', 'main'];
 
-mix
-    .js('resources/js/app.js', 'public/js')
-    .extract(['vue', 'vuex', 'axios', 'jquery', 'bootstrap', 'lodash', 'popper.js'])
-;
+const section = 'SECTION' in process.env ? process.env.SECTION : DEFAULT_SECTION;
 
-mix
-    .sass('resources/sass/app.scss', 'public/css');
+if (SECTIONS.includes(section)) {
+    require(`${__dirname}/webpack.${section}.mix.js`);
+} else {
+    console.log(
+        '\x1b[41m%s\x1b[0m',
+        'Provide correct SECTION environment variable to build command: ' + SECTIONS.join(', ')
+    );
+    throw new Error('Provide correct SECTION environment variable to build command!');
+}
+
+mix.options({
+    hmrOptions: {
+        host: process.env.APP_URL.match(/^(?:https?:\/\/)?(.*)$/)[1],
+        port: 8080,
+    },
+});
+
+mix.sourceMaps(false);

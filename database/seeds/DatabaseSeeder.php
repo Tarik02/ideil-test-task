@@ -82,7 +82,7 @@ class DatabaseSeeder extends Seeder
                 /** @var PlacePhoto $photo */
                 $photo = factory(PlacePhoto::class)->create([
                     'place_id' => $place->id,
-                    'order' => $i,
+                    'weight' => $i,
                 ]);
                 $imageFile = tempnam(sys_get_temp_dir(), 'laravel-photo');
                 file_put_contents($imageFile, file_get_contents('https://picsum.photos/200/300'));
