@@ -23,4 +23,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'roles' => 'array',
     ];
+
+    public function hasRole(string $role)
+    {
+        return $this->roles !== null && in_array($role, $this->roles);
+    }
 }

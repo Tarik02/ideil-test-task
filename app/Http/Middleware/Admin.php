@@ -19,7 +19,7 @@ class Admin
         if (null !== $user = \Auth::user()) {
             /** @var User $user */
 
-            if (in_array('admin', $user->roles)) {
+            if ($user->hasRole('admin')) {
                 return $next($request);
             }
         }
