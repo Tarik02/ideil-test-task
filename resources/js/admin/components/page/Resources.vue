@@ -23,7 +23,7 @@
                         <v-toolbar flat>
                             <v-toolbar-title>
                                 {{ $t(`resources.${name}.plural`) }}
-                                ({{ $t('common.page') }} {{ page }}/{{ meta.last_page}})
+                                ({{ $t('common.page') }} {{ page }}/{{ meta.last_page }})
                             </v-toolbar-title>
                             <v-divider
                                 class="mx-4"
@@ -44,7 +44,7 @@
                         <v-icon
                             small
                             class="mr-2"
-                            @click.stop="editItem(item)"
+                            @click.stop="openItem(item)"
                         >
                             edit
                         </v-icon>
