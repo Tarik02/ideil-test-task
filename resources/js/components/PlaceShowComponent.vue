@@ -72,7 +72,14 @@
                         </template>
                     </div>
 
-                    <span @click="showCommentForm = true" class="btn btn-primary">Залишити коментар</span>
+                    <span
+                        v-if="authenticated"
+                        @click="showCommentForm = true"
+                        class="btn btn-primary"
+                    >Залишити коментар</span>
+                    <span v-else>
+                        Лише авторизовані користувачі можуть залишати коментарі
+                    </span>
                 </template>
             </div>
         </div>
@@ -100,6 +107,9 @@
                 place: state => state.place,
                 like_state: state => state.like_state,
             }),
+            authenticated() {
+                return this.$store.state.auth.id !== null;
+            },
         },
 
         methods: {
