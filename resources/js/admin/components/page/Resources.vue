@@ -1,25 +1,23 @@
 <template>
     <v-layout fill-height>
-        <template v-if="error">
-            <v-row justify="center" align="center">
-                <error @retry="reload" />
-            </v-row>
-        </template>
-        <loading v-else-if="firstLoading" />
+        <error v-if="$loadError" @retry="load" />
         <v-row v-else>
             <v-col>
+                <v-pagination
+                    :value="page"
+                    :length="meta.last_page"
+                    :total-visible="6"
+                    :disabled="$loadLoading"
+                    circle
+                    @input="$mergePushRoute({query:{page: $event}})"
+                />
+
                 <v-data-table
                     :headers="allHeaders"
                     :items="items"
-                    :loading="loading"
-                    :options.sync="options"
-                    :server-items-length="meta.total"
-                    :footer-props="{
-                        'items-per-page-options': [],
-                    }"
+                    :loading="$loadLoading"
+                    hide-default-footer
                     @click:row="openItem($event)"
-                    :page="page"
-                    @update:page="$mergePushRoute({ query: { page: $event } })"
                 >
                     <template v-slot:top>
                         <v-toolbar flat>
@@ -58,6 +56,15 @@
                         </v-icon>
                     </template>
                 </v-data-table>
+
+                <v-pagination
+                    :value="page"
+                    :total-visible="6"
+                    :length="meta.last_page"
+                    :disabled="$loadLoading"
+                    circle
+                    @input="$mergePushRoute({query:{page: $event}})"
+                />
             </v-col>
         </v-row>
 
@@ -67,27 +74,30 @@
             :identifier-getter="identifierGetter"
             :name="name"
             :model="deleteModel"
-            @done="$router.reload()"
+            @done="load()"
         />
     </v-layout>
 </template>
 
 <script>
     import Axios from 'axios';
+
     import Error from '../common/Error';
-    import Loading from '../common/Loading';
     import DeleteDialog from '../DeleteDialog';
+    import loader from '../../common/loader';
 
     export default {
+        mixins: [
+            loader,
+        ],
+
         components: {
             Error,
-            Loading,
             DeleteDialog,
         },
 
         props: {
             name: String,
-            page: Number,
             headers: {
                 type: Array,
                 default: () => ({}),
@@ -103,11 +113,6 @@
         },
 
         data: () => ({
-            options: {},
-            firstLoading: true,
-            loading: true,
-            error: false,
-
             items: [],
             meta: {},
 
@@ -123,42 +128,33 @@
                     {text: this.$t('resources.common.actions'), value: 'action', sortable: false},
                 ];
             },
+
+            page() {
+                return this.$route.query.page ? Number(this.$route.query.page) : 1;
+            },
         },
 
         created() {
-            this.options.page = this.$route.query.page ? Number(this.$route.query.page) : 1;
-            this.reload(true);
+            this.load();
         },
 
         methods: {
-            reload(force = false) {
-                if (this.loading && !force) {
-                    return;
-                }
-
-                this.loading = true;
-                this.error = false;
-
-                return Axios.get(`/${this.name}`, {
-                    params: {
-                        page: this.page,
+            load() {
+                this.$load(
+                    'data',
+                    Axios.get(`/${this.name}`, {
+                        params: {
+                            page: this.page,
+                        },
+                    }),
+                    {
+                        success: response => {
+                            const {data, meta} = response.data;
+                            this.items = data;
+                            this.meta = meta;
+                        },
                     },
-                })
-                    .then(response => {
-                        const {data, meta} = response.data;
-                        this.items = data;
-                        this.meta = meta;
-                        this.firstLoading = false;
-                        this.loading = false;
-                        this.error = false;
-                    })
-                    .catch(() => {
-                        this.items = [];
-                        this.meta = {};
-                        this.loading = false;
-                        this.error = true;
-                    })
-                    ;
+                );
             },
 
             createNew() {
@@ -183,15 +179,7 @@
         },
 
         watch: {
-            options: {
-                deep: true,
-                handler(newValue, oldValue) {
-                    if (newValue.page === oldValue.page) {
-                        return;
-                    }
-                    this.reload();
-                },
-            },
+            '$route': 'load',
         },
     }
 </script>

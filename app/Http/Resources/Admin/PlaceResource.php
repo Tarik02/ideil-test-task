@@ -24,7 +24,7 @@ class PlaceResource extends JsonResource
             'dislikes_count' => $this->dislikes_count,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'comments' => CommentResource::collection($this->whenLoaded('comments')),
+            'comments' => PlaceCommentResource::collection($this->whenLoaded('comments')),
             'fields' => PlaceFieldResource::collection($this->whenLoaded('fields')),
             'photos' => $this->whenLoaded('media', function () {
                 return $this->getMedia('photos')->map(function (Media $photo) {

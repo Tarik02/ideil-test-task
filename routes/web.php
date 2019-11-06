@@ -44,6 +44,10 @@ Route::group([
         'namespace' => 'Admin',
     ], function () {
         Route::apiResource('places', 'PlaceController');
+
+        Route::get('/places/{slug}/comments', 'PlaceCommentController@show');
+        Route::patch('/places/{slug}/comments/{id}', 'PlaceCommentController@update');
+        Route::delete('/places/{slug}/comments/{id}', 'PlaceCommentController@destroy');
     });
 
     Route::any('/{path?}', function (string $path = null) {

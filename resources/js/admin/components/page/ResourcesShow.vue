@@ -1,15 +1,7 @@
 <template>
     <v-layout fill-height>
-        <template v-if="error">
-            <v-row justify="center" align="center">
-                <error @retry="load" />
-            </v-row>
-        </template>
-        <template v-else-if="loading">
-            <v-row justify="center" align="center">
-                <loading />
-            </v-row>
-        </template>
+        <loading v-if="$loadLoading" />
+        <error v-else-if="$loadError" @retry="load" />
         <template v-else>
             <v-row>
                 <v-col>
@@ -30,7 +22,7 @@
 
                                 <v-btn
                                     text
-                                    @click="cancel"
+                                    @click="$router.go(-1)"
                                 >{{ $t('common.cancel') }}</v-btn>
 
                                 <v-btn
@@ -55,18 +47,24 @@
             :identifier="identifier"
             :name="name"
             :model="data"
-            @done="$router.go(-1), $router.reload()"
+            @done="$router.go(-1)"
         />
     </v-layout>
 </template>
 
 <script>
     import Axios from 'axios';
+
     import Error from '../common/Error';
     import Loading from '../common/Loading';
     import DeleteDialog from '../DeleteDialog';
+    import loader from '../../common/loader';
 
     export default {
+        mixins: [
+            loader,
+        ],
+
         components: {
             Error,
             Loading,
@@ -90,8 +88,6 @@
         },
 
         data: () => ({
-            loading: true,
-            error: false,
             data: undefined,
             meta: undefined,
 
@@ -116,39 +112,31 @@
         methods: {
             load() {
                 if (this.isNew) {
-                    this.loading = false;
-                    this.error = false;
-                    if (!this.data) {
-                        this.data = this.initialModel();
-                        this.meta = this.initialMeta();
-                    }
+                    this.data = this.initialModel();
+                    this.meta = this.initialMeta();
+                    this.$loadCancel('resource');
                     return;
                 }
 
-                this.loading = true;
-                this.error = false;
-
-                Axios.get(`/${this.name}/${this.$route.params[this.identifier]}`)
-                    .then(response => {
-                        this.loading = false;
-                        this.error = false;
-                        this.data = response.data.data;
-                        this.meta = response.data.meta;
-                    })
-                    .catch(() => {
-                        this.loading = false;
-                        this.error = true;
-                    })
-                ;
+                this.$load(
+                    'resource',
+                    Axios.get(`/${this.name}/${this.$route.params[this.identifier]}`),
+                    {
+                        success: response => {
+                            this.data = response.data.data;
+                            this.meta = response.data.meta;
+                        },
+                    },
+                );
             },
 
             save() {
                 const data = new FormData();
                 this.$emit('buildFormData', data);
 
-                this.loading = true;
-                Axios
-                    .request({
+                this.$load(
+                    'resource',
+                    Axios.request({
                         url: (
                             this.isNew
                                 ? `/${this.name}`
@@ -158,29 +146,32 @@
                             this.isNew ? 'post' : 'patch'
                         ),
                         data,
-                    })
-                    .then(() => {
-                        if (this.isNew) {
-                            this.$router.push({
-                                name: `${this.name}.edit`,
-                                params: {
-                                    [this.identifier]: this.data[this.identifier],
-                                },
-                            });
-                        } else {
-                            this.load();
-                        }
-                    })
-                    .catch(() => {
-                        this.loading = false;
-                        // this.error = true;
-                        // TOOD: show notification about the error
-                    })
-                ;
+                    }),
+                    {
+                        success: () => {
+                            if (this.isNew) {
+                                this.$router.push({
+                                    name: `${this.name}.edit`,
+                                    params: {
+                                        [this.identifier]: this.data[this.identifier],
+                                    },
+                                });
+                            } else {
+                                this.load();
+                            }
+                        },
+                    },
+                    {
+                        ignoreError: true,
+                    },
+                );
             },
+        },
 
-            cancel() {
-                this.$router.go(-1);
+        watch: {
+            '$route': 'load',
+            data() {
+                this.$emit('input', this.data);
             },
         },
     };

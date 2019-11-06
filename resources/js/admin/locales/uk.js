@@ -4,8 +4,9 @@ export default {
     common: {
         create: 'Створити',
         save: 'Зберегти',
-        cancel: 'Скасувати',
         destroy: 'Видалити',
+        cancel: 'Скасувати',
+        back: 'Назад',
         page: 'сторінка',
     },
 
@@ -18,6 +19,9 @@ export default {
         value: 'Значення',
         likes: 'Лайки',
         dislikes: 'Дизлайки',
+        created_at: 'Створено',
+        updated_at: 'Оновлено',
+        visible: 'Видимий',
     },
 
     validation: {
@@ -34,6 +38,11 @@ export default {
         places: {
             singular: 'Місце',
             plural: 'Місця',
+        },
+
+        comments: {
+            singular: 'Коментар',
+            plural: 'Коментарі',
         },
     },
 
