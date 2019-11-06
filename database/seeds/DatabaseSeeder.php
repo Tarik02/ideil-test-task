@@ -25,6 +25,12 @@ class DatabaseSeeder extends Seeder
         factory(User::class)->create([
             'name' => 'admin',
             'email' => 'admin@app.com',
+            'roles' => ['admin'],
+        ]);
+
+        factory(User::class)->create([
+            'name' => 'user',
+            'email' => 'user@app.com',
         ]);
 
         /** @var Collection $users */
