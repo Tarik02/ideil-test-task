@@ -245,8 +245,12 @@
                         photos.push({
                             id: photo.id,
                             visible: photo.visible,
+                            deleted: photo.deleted,
                         });
                     } else {
+                        if (photo.deleted === true) {
+                            continue;
+                        }
                         let fileIndex = photoFileCounter++;
                         photos.push({
                             file: fileIndex,

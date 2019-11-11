@@ -40,10 +40,15 @@ class PlaceService
                             ->toMediaCollection('photos')
                         ;
                     }
-                    $model->setCustomProperty('visible', $photo['visible']);
-                    $model->order_column = $orderCounter++;
 
-                    $model->save();
+                    if ($photo['deleted'] ?? null === true) {
+                        $model->forceDelete();
+                    } else {
+                        $model->setCustomProperty('visible', $photo['visible']);
+                        $model->order_column = $orderCounter++;
+
+                        $model->save();
+                    }
                 }
             );
         });

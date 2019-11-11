@@ -12,6 +12,7 @@
             <transition-group tag="v-row">
                 <v-col
                     v-for="photo in photos"
+                    v-if="!photo.deleted"
                     :key="photo.id"
                     xs="12"
                     sm="4"
@@ -136,6 +137,8 @@
 </template>
 
 <script>
+    import Vue from 'vue';
+
     import FileInput from './FileInput';
 
     export default {
@@ -182,8 +185,7 @@
             },
 
             deletePhoto(photo) {
-                const index = this.photos.findIndex(it => it.id === photo.id);
-                this.photos.splice(index, 1);
+                Vue.set(photo, 'deleted', true);
             },
         },
     };
