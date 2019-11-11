@@ -9,6 +9,7 @@ use App\Models\User;
 use Faker\Generator as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Spatie\MediaLibrary\Exceptions\FileCannotBeAdded\UnreachableUrl;
 
 class DatabaseSeeder extends Seeder
 {
@@ -96,10 +97,22 @@ class DatabaseSeeder extends Seeder
         $places->each(function (Place $place) use ($faker) {
             $count = $faker->numberBetween(0, 6);
             for ($i = 0; $i < $count; ++$i) {
-                $place
-                    ->addMediaFromUrl('https://picsum.photos/600/900')
-                    ->toMediaCollection('photos')
-                ;
+                while (true) {
+                    try {
+                        $place
+                            ->addMediaFromUrl('https://picsum.photos/600/900')
+                            ->toMediaCollection('photos')
+                        ;
+
+                        break;
+                    } catch (UnreachableUrl $exception) {
+                        $this->command->warn(
+                            'Failed to fetch random photo. Perhaps, bad internet connection. Retrying...'
+                        );
+
+                        sleep(1);
+                    }
+                }
             }
             $place->save();
         });
